@@ -6,7 +6,7 @@ import * as React from 'react';
 import flow from 'lodash/flow';
 import { FormattedMessage } from 'react-intl';
 import { MetadataEmptyState } from '@box/metadata-editor';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import getProp from 'lodash/get';
 import type { MessageDescriptor } from 'react-intl';
 import messages from '../common/messages';
@@ -41,63 +41,51 @@ function MetadataSidebarRedesign({ api, fileId, isFeatureEnabled, onError, selec
     const [file, setFile] = useState<BoxItem>(undefined);
     const [templates, setTemplates] = useState<Array<MetadataTemplate>>([]);
 
-    const onApiError = useCallback(
-        (err: ElementsXhrError, code: string) => {
-            const { status } = err;
-            const isValidError = isUserCorrectableError(status);
-            setError(messages.sidebarMetadataEditingErrorContent);
-            // MetadataSidebar.js
-            // this.setState({
-            //  error: messages.sidebarMetadataEditingErrorContent,
-            //  isLoading: false,
-            //  ...newState,
-            // });
-            onError(error, code, { error, [IS_ERROR_DISPLAYED]: isValidError });
-        },
-        [onError, error],
-    );
+    const onApiError = (err: ElementsXhrError, code: string) => {
+        const { status } = err;
+        const isValidError = isUserCorrectableError(status);
+        setError(messages.sidebarMetadataEditingErrorContent);
+        onError(error, code, { error, [IS_ERROR_DISPLAYED]: isValidError });
+    };
 
-    const fetchMetadataErrorCallback = useCallback(
-        (e: ElementsXhrError, code: string) => {
-            onApiError(e, code);
-            // MetadataSidebar.js
-            // onApiError(e, code, {
-            //     editors: undefined,
-            //     error: messages.sidebarMetadataFetchingErrorContent,
-            //     templates: undefined,
-            // });
-        },
-        [onApiError],
-    );
+    const fetchMetadataErrorCallback = (e: ElementsXhrError, code: string) => {
+        onApiError(e, code);
 
-    const fetchMetadataSuccessCallback = useCallback(
-        ({ fetchedEditors, fetchedTemplates }) => {
-            setEditors(fetchedEditors.slice(0));
-            setError(undefined);
-            setTemplates(normalizeTemplates(fetchedTemplates, selectedTemplateKey, templateFilters));
-        },
-        [selectedTemplateKey, templateFilters],
-    );
+        setEditors(undefined);
+        setError(messages.sidebarMetadataFetchingErrorContent);
+        setTemplates(undefined);
 
-    const fetchMetadata = useCallback(
-        fetchedFile => {
-            if (!fetchedFile) return;
+        // onApiError(e, code);
+        // MetadataSidebar.js
+        // onApiError(e, code, {
+        //     editors: undefined,
+        //     error: messages.sidebarMetadataFetchingErrorContent,
+        //     templates: undefined,
+        // });
+    };
 
-            api.getMetadataAPI(false).getMetadata(
-                fetchedFile,
-                fetchMetadataSuccessCallback,
-                fetchMetadataErrorCallback,
-                isFeatureEnabled,
-                { refreshCache: true },
-            );
-        },
-        [api, fetchMetadataErrorCallback, fetchMetadataSuccessCallback, isFeatureEnabled],
-    );
+    const fetchMetadataSuccessCallback = ({ fetchedEditors, fetchedTemplates }) => {
+        setEditors(fetchedEditors ?? []); // fetchedEditors and fetchedTemplates are undefined now
+        setError(undefined);
+        setTemplates(normalizeTemplates(fetchedTemplates ?? [], selectedTemplateKey, templateFilters));
+    };
+
+    const fetchMetadata = fetchedFile => {
+        if (!fetchedFile) return;
+
+        api.getMetadataAPI(false).getMetadata(
+            fetchedFile,
+            fetchMetadataSuccessCallback,
+            fetchMetadataErrorCallback,
+            isFeatureEnabled,
+            { refreshCache: true },
+        );
+    };
 
     const fetchFileErrorCallback = (e: ElementsXhrError, code: string) => {
         onApiError(e, code);
-        // MetadataSidebar.js
-        // onApiError(e, code, { error: messages.sidebarFileFetchingErrorContent, file: undefined });
+        setError(messages.sidebarFileFetchingErrorContent);
+        setFile(undefined);
     };
 
     const fetchFileSuccessCallback = (fetchedFile: BoxItem) => {
