@@ -1,5 +1,8 @@
 @import '../common/variables';
+@import '../../styles/variables';
 
 .bcs-MetadataSidebarRedesign {
+    width: 340px;
+    background-color: $bdl-gray-02;
     padding-inline: 10px;
 }
