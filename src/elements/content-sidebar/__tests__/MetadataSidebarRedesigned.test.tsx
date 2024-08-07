@@ -28,7 +28,7 @@ const mockAPI = {
         successCallback({ id, [FIELD_PERMISSIONS_CAN_UPLOAD]: true });
     }),
     getMetadata: jest.fn((file, successCallback) => {
-        successCallback({ fetchedEditors: [], fetchedTemplates: [] });
+        successCallback({ editors: [], templates: [] });
     }),
 };
 const api = {

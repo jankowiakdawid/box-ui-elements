@@ -1,20 +1,16 @@
 /**
  * @file Redesigned Metadata sidebar component
- * @version 2.0
+ * @author Box
  */
-import * as React from 'react';
-import flow from 'lodash/flow';
-import { FormattedMessage } from 'react-intl';
 import { MetadataEmptyState } from '@box/metadata-editor';
-import { useEffect, useState } from 'react';
+import flow from 'lodash/flow';
 import getProp from 'lodash/get';
+import * as React from 'react';
 import type { MessageDescriptor } from 'react-intl';
-import messages from '../common/messages';
-import { EVENT_JS_READY } from '../common/logger/constants';
-import { mark } from '../../utils/performance';
-import { withAPIContext } from '../common/api-context';
-import { withErrorBoundary } from '../common/error-boundary';
-import { withLogger } from '../common/logger';
+import { FormattedMessage } from 'react-intl';
+import type { ElementsXhrError } from '../../common/types/api';
+import type { BoxItem } from '../../common/types/core';
+import type { MetadataEditor, MetadataTemplate } from '../../common/types/metadata';
 import {
     FIELD_IS_EXTERNALLY_OWNED,
     FIELD_PERMISSIONS,
@@ -22,29 +18,37 @@ import {
     IS_ERROR_DISPLAYED,
     ORIGIN_METADATA_SIDEBAR_REDESIGN,
 } from '../../constants';
-import './MetadataSidebarRedesign.scss';
-
 import { normalizeTemplates } from '../../features/metadata-instance-editor/metadataUtil';
 import { isUserCorrectableError } from '../../utils/error';
-
-import type { ElementsXhrError } from '../../common/types/api';
-import type { MetadataEditor, MetadataTemplate } from '../../common/types/metadata';
-import type { BoxItem } from '../../common/types/core';
+import { mark } from '../../utils/performance';
+import { withAPIContext } from '../common/api-context';
+import { withErrorBoundary } from '../common/error-boundary';
+import { withLogger } from '../common/logger';
+import { EVENT_JS_READY } from '../common/logger/constants';
+import messages from '../common/messages';
+import './MetadataSidebarRedesign.scss';
+import { Metadata, Props } from './MetadataSidebarRedesignTypes';
 
 const MARK_NAME_JS_READY = `${ORIGIN_METADATA_SIDEBAR_REDESIGN}_${EVENT_JS_READY}`;
 
 mark(MARK_NAME_JS_READY);
 
-function MetadataSidebarRedesign({ api, fileId, isFeatureEnabled, onError, selectedTemplateKey, templateFilters }) {
-    const [editors, setEditors] = useState<Array<MetadataEditor>>([]);
-    const [error, setError] = useState<MessageDescriptor>(undefined);
-    const [file, setFile] = useState<BoxItem>(undefined);
-    const [templates, setTemplates] = useState<Array<MetadataTemplate>>([]);
+const MetadataSidebarRedesign: React.FunctionComponent<Props> = ({
+    api,
+    fileId,
+    isFeatureEnabled,
+    onError,
+    selectedTemplateKey,
+    templateFilters,
+}) => {
+    const [editors, setEditors] = React.useState<Array<MetadataEditor>>([]);
+    const [error, setError] = React.useState<MessageDescriptor>(undefined);
+    const [file, setFile] = React.useState<BoxItem>(undefined);
+    const [templates, setTemplates] = React.useState<Array<MetadataTemplate>>([]);
 
     const onApiError = (err: ElementsXhrError, code: string) => {
         const { status } = err;
         const isValidError = isUserCorrectableError(status);
-        setError(messages.sidebarMetadataEditingErrorContent);
         onError(error, code, { error, [IS_ERROR_DISPLAYED]: isValidError });
     };
 
@@ -55,13 +59,13 @@ function MetadataSidebarRedesign({ api, fileId, isFeatureEnabled, onError, selec
         setTemplates(undefined);
     };
 
-    const fetchMetadataSuccessCallback = ({ fetchedEditors, fetchedTemplates }) => {
-        setEditors(fetchedEditors ?? []); // fetchedEditors and fetchedTemplates are undefined now
+    const fetchMetadataSuccessCallback = ({ editors: fetchedEditors, templates: fetchedTemplates }: Metadata) => {
+        setEditors(fetchedEditors);
         setError(undefined);
-        setTemplates(normalizeTemplates(fetchedTemplates ?? [], selectedTemplateKey, templateFilters));
+        setTemplates(normalizeTemplates(fetchedTemplates, selectedTemplateKey, templateFilters));
     };
 
-    const fetchMetadata = fetchedFile => {
+    const fetchMetadata = (fetchedFile: BoxItem) => {
         if (!fetchedFile) return;
 
         api.getMetadataAPI(false).getMetadata(
@@ -94,7 +98,7 @@ function MetadataSidebarRedesign({ api, fileId, isFeatureEnabled, onError, selec
         });
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         fetchFile();
     }, []);
 
@@ -112,7 +116,7 @@ function MetadataSidebarRedesign({ api, fileId, isFeatureEnabled, onError, selec
             )}
         </div>
     );
-}
+};
 
 export { MetadataSidebarRedesign as MetadataSidebarRedesignComponent };
 export default flow([
