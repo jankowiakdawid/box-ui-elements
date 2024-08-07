@@ -102,7 +102,7 @@ const MetadataSidebarRedesign: React.FunctionComponent<Props> = ({
         fetchFile();
     }, []);
 
-    const showEditor = !!file && !!templates && !!editors;
+    const showEditor = file && templates && editors;
     const showEmptyState = showEditor && editors && editors.length === 0;
 
     return (
