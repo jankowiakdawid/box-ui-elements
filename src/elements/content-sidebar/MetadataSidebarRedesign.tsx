@@ -50,18 +50,9 @@ function MetadataSidebarRedesign({ api, fileId, isFeatureEnabled, onError, selec
 
     const fetchMetadataErrorCallback = (e: ElementsXhrError, code: string) => {
         onApiError(e, code);
-
         setEditors(undefined);
         setError(messages.sidebarMetadataFetchingErrorContent);
         setTemplates(undefined);
-
-        // onApiError(e, code);
-        // MetadataSidebar.js
-        // onApiError(e, code, {
-        //     editors: undefined,
-        //     error: messages.sidebarMetadataFetchingErrorContent,
-        //     templates: undefined,
-        // });
     };
 
     const fetchMetadataSuccessCallback = ({ fetchedEditors, fetchedTemplates }) => {
