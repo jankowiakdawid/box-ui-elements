@@ -60,7 +60,7 @@ describe('elements/content-sidebar/Metadata/MetadataSidebarRedesigned', () => {
             screen.getByText(
                 'Use the power of Box AI to quickly capture document metadata, with ever-increasing accuracy.',
             ),
-        );
+        ).toBeInTheDocument();
     });
 
     test('should correctly render empty state when AI feature is disabled', () => {
@@ -68,6 +68,8 @@ describe('elements/content-sidebar/Metadata/MetadataSidebarRedesigned', () => {
 
         renderComponent({ api, isBoxAiSuggestionsFeatureEnabled });
         expect(screen.getByRole('heading', { level: 2, name: 'Add Metadata Templates' })).toBeInTheDocument();
-        expect(screen.getByText('Add Metadata to your file to support business operations, workflows, and more!'));
+        expect(
+            screen.getByText('Add Metadata to your file to support business operations, workflows, and more!'),
+        ).toBeInTheDocument();
     });
 });
