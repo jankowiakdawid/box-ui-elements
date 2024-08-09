@@ -27,15 +27,16 @@ import { withLogger } from '../common/logger';
 import { EVENT_JS_READY } from '../common/logger/constants';
 import messages from '../common/messages';
 import './MetadataSidebarRedesign.scss';
-import { Metadata, Props } from './MetadataSidebarRedesignTypes';
+import { Metadata, MetadataSidebarRedesignProps } from './MetadataSidebarRedesignTypes';
 
 const MARK_NAME_JS_READY = `${ORIGIN_METADATA_SIDEBAR_REDESIGN}_${EVENT_JS_READY}`;
 
 mark(MARK_NAME_JS_READY);
 
-const MetadataSidebarRedesign: React.FunctionComponent<Props> = ({
+const MetadataSidebarRedesign: React.FunctionComponent<MetadataSidebarRedesignProps> = ({
     api,
     fileId,
+    isBoxAiSuggestionsFeatureEnabled,
     isFeatureEnabled,
     onError,
     selectedTemplateKey,
@@ -51,12 +52,11 @@ const MetadataSidebarRedesign: React.FunctionComponent<Props> = ({
         const isValidError = isUserCorrectableError(status);
         onError(error, code, { error, [IS_ERROR_DISPLAYED]: isValidError });
     };
-
     const fetchMetadataErrorCallback = (e: ElementsXhrError, code: string) => {
         onApiError(e, code);
-        setEditors(undefined);
+        setEditors(null);
         setError(messages.sidebarMetadataFetchingErrorContent);
-        setTemplates(undefined);
+        setTemplates(null);
     };
 
     const fetchMetadataSuccessCallback = ({ editors: fetchedEditors, templates: fetchedTemplates }: Metadata) => {
@@ -80,7 +80,7 @@ const MetadataSidebarRedesign: React.FunctionComponent<Props> = ({
     const fetchFileErrorCallback = (e: ElementsXhrError, code: string) => {
         onApiError(e, code);
         setError(messages.sidebarFileFetchingErrorContent);
-        setFile(undefined);
+        setFile(null);
     };
 
     const fetchFileSuccessCallback = (fetchedFile: BoxItem) => {
@@ -112,7 +112,10 @@ const MetadataSidebarRedesign: React.FunctionComponent<Props> = ({
             </h3>
             <hr />
             {showEmptyState && (
-                <MetadataEmptyState level={'file'} isBoxAiSuggestionsFeatureEnabled={isFeatureEnabled} />
+                <MetadataEmptyState
+                    level={'file'}
+                    isBoxAiSuggestionsFeatureEnabled={isBoxAiSuggestionsFeatureEnabled}
+                />
             )}
         </div>
     );

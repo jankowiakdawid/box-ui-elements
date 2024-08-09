@@ -1,8 +1,8 @@
 import React from 'react';
-import { IntlProvider } from 'react-intl';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import MetadataSidebarRedesign from '../MetadataSidebarRedesign';
 import { FIELD_PERMISSIONS_CAN_UPLOAD } from '../../../constants';
+import { render } from '../../../test-utils/testing-library';
 
 jest.unmock('react-intl');
 jest.unmock('lodash');
@@ -38,16 +38,12 @@ const api = {
 
 describe('elements/content-sidebar/Metadata/MetadataSidebarRedesigned', () => {
     const renderComponent = (props = {}) => {
-        render(<MetadataSidebarRedesign {...props} />, {
-            wrapper: ({ children }: { children: React.ReactNode }) => (
-                <IntlProvider locale="en">{children}</IntlProvider>
-            ),
-        });
+        render(<MetadataSidebarRedesign {...props} />);
     };
 
     test('should render title', () => {
         renderComponent({ api });
-        expect(screen.getByRole('heading', { level: 3, name: 'Metadata' })).toBeVisible();
+        expect(screen.getByRole('heading', { level: 3, name: 'Metadata' })).toBeInTheDocument();
     });
 
     test('should call fetch file', () => {
@@ -55,11 +51,11 @@ describe('elements/content-sidebar/Metadata/MetadataSidebarRedesigned', () => {
         expect(api.getFileAPI).toHaveBeenCalled();
     });
 
-    test('empty state with AI enabled', () => {
-        const isFeatureEnabled = true;
+    test('should correctly render empty state when AI feature is enabled', () => {
+        const isBoxAiSuggestionsFeatureEnabled = true;
 
-        renderComponent({ api, isFeatureEnabled });
-        expect(screen.getByRole('heading', { level: 2, name: 'Autofill Metadata with Box AI' })).toBeVisible();
+        renderComponent({ api, isBoxAiSuggestionsFeatureEnabled });
+        expect(screen.getByRole('heading', { level: 2, name: 'Autofill Metadata with Box AI' })).toBeInTheDocument();
         expect(
             screen.getByText(
                 'Use the power of Box AI to quickly capture document metadata, with ever-increasing accuracy.',
@@ -67,11 +63,11 @@ describe('elements/content-sidebar/Metadata/MetadataSidebarRedesigned', () => {
         );
     });
 
-    test('empty state with AI disabled', () => {
-        const isFeatureEnabled = false;
+    test('should correctly render empty state when AI feature is disabled', () => {
+        const isBoxAiSuggestionsFeatureEnabled = false;
 
-        renderComponent({ api, isFeatureEnabled });
-        expect(screen.getByRole('heading', { level: 2, name: 'Add Metadata Templates' })).toBeVisible();
+        renderComponent({ api, isBoxAiSuggestionsFeatureEnabled });
+        expect(screen.getByRole('heading', { level: 2, name: 'Add Metadata Templates' })).toBeInTheDocument();
         expect(screen.getByText('Add Metadata to your file to support business operations, workflows, and more!'));
     });
 });

@@ -3,25 +3,27 @@ import type { WithLoggerProps } from '../../common/types/logging';
 import type { ErrorContextProps } from '../../common/types/api';
 import type { MetadataEditor, MetadataTemplate } from '../../common/types/metadata';
 
-export type ExternalProps = {
+export interface ExternalProps {
+    isBoxAiSuggestionsFeatureEnabled: boolean;
     isFeatureEnabled: boolean;
     selectedTemplateKey?: string;
     templateFilters?: Array<string> | string;
-};
+}
 
-export type PropsWithoutContext = {
+export interface PropsWithoutContext extends ExternalProps {
     elementId: string;
     fileId: string;
     hasSidebarInitialized?: boolean;
-} & ExternalProps;
+}
 
-export type Props = {
+// For some reason, when changing this type to an interface, the MetadataSidebarRedesign component throws an error on the onError prop.
+export type MetadataSidebarRedesignProps = {
     api: API;
 } & PropsWithoutContext &
     ErrorContextProps &
     WithLoggerProps;
 
-export type Metadata = {
+export interface Metadata {
     editors: Array<MetadataEditor>;
     templates: Array<MetadataTemplate>;
-};
+}
