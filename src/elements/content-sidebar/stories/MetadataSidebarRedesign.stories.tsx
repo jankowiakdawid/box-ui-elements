@@ -1,31 +1,11 @@
-// @flow
 import { type StoryObj } from '@storybook/react';
 import { type ComponentProps } from 'react';
 import React from 'react';
-import MetadataSidebarRedesign, { MetadataSidebarRedesignComponent } from '../MetadataSidebarRedesign';
-import { type MetadataSidebarRedesignProps } from '../MetadataSidebarRedesignTypes';
-
-const containerStyle = { width: 300, height: 700, display: 'flex' };
-
-const mockApi = {
-    getFileAPI: () => ({
-        getFile: (fileId, successCallback) => {
-            successCallback({ id: fileId, name: 'Sample File' });
-        },
-    }),
-    getMetadataAPI: () => ({
-        getMetadata: (file, successCallback) => {
-            successCallback({
-                editors: [],
-                templates: [],
-            });
-        },
-    }),
-};
+import MetadataSidebarRedesign, { MetadataSidebarRedesignProps } from '../MetadataSidebarRedesign';
+import ContentSidebar from '../ContentSidebar';
 
 const defaultArgs: ComponentProps<typeof MetadataSidebarRedesign> = {
-    api: mockApi,
-    fileId: 'abcd',
+    fileId: global.FILE_ID,
     isBoxAiSuggestionsFeatureEnabled: true,
     isFeatureEnabled: true,
     onError: (error, code, context) => console.error('Error:', error, code, context),
@@ -34,16 +14,33 @@ const defaultArgs: ComponentProps<typeof MetadataSidebarRedesign> = {
 };
 
 export default {
-    title: 'Elements/MetadataSidebarRedesign',
+    title: 'Elements/ContentSidebar/MetadataSidebarRedesign',
     component: MetadataSidebarRedesign,
     args: defaultArgs,
 };
 
+const mockLogger = {
+    onReadyMetric: ({ endMarkName }) => {
+        console.log(`Logger: onReadyMetric called with endMarkName: ${endMarkName}`);
+    },
+};
+
+const mockFeatures = {
+    'metadata.redesign.enabled': true,
+};
+
 const Template = (args: MetadataSidebarRedesignProps) => {
     return (
-        <div style={containerStyle}>
-            <MetadataSidebarRedesignComponent {...args} />
-        </div>
+        <ContentSidebar
+            token={global.TOKEN}
+            metadataSidebarProps={{
+                ...args,
+            }}
+            hasMetadata={true}
+            features={mockFeatures}
+            fileId={global.FILE_ID}
+            logger={mockLogger}
+        />
     );
 };
 
@@ -52,10 +49,13 @@ const Default: StoryObj<typeof MetadataSidebarRedesign> = {
     args: { ...defaultArgs },
 };
 
+const fileIdWithNoMetadata = '416047501580';
+
 export const EmptyStateWithBoxAiEnabled: StoryObj<typeof MetadataSidebarRedesign> = {
     ...Default,
     args: {
         ...Default.args,
+        fileId: fileIdWithNoMetadata,
     },
 };
 
@@ -64,5 +64,6 @@ export const EmptyStateWithBoxAiDisabled: StoryObj<typeof MetadataSidebarRedesig
     args: {
         ...Default.args,
         isBoxAiSuggestionsFeatureEnabled: false,
+        fileId: fileIdWithNoMetadata,
     },
 };

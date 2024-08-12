@@ -1,11 +1,9 @@
 import React from 'react';
-import { screen } from '@testing-library/react';
 import MetadataSidebarRedesign from '../MetadataSidebarRedesign';
 import { FIELD_PERMISSIONS_CAN_UPLOAD } from '../../../constants';
-import { render } from '../../../test-utils/testing-library';
+import { render, screen } from '../../../test-utils/testing-library';
 
 jest.unmock('react-intl');
-jest.unmock('lodash');
 
 jest.mock('../../common/api-context', () => Component => {
     return Component;
